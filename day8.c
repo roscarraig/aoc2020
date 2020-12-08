@@ -90,23 +90,27 @@ int main(int argc, char *argv[])
 
   while(!feof(fp) && fgets(buffer, 64, fp))
   {
+    sscanf(buffer + 4, "%d", &(prog[i].val));
     if(strncmp(buffer, "nop", 3) == 0)
-      prog[i].code = NOP;
-    else if(strncmp(buffer, "acc", 3) == 0)
     {
-      prog[i].code = ACC;
-      j++;
+      prog[i].code = NOP;
+      if(prog[i].val != 1)
+        j++;
     }
+    else if(strncmp(buffer, "acc", 3) == 0)
+      prog[i].code = ACC;
     else if(strncmp(buffer, "jmp", 3) == 0)
     {
       prog[i].code = JMP;
-      j++;
+      if(prog[i].val != 1)
+        j++;
     }
-    sscanf(buffer + 4, "%d", &(prog[i++].val));
+    i++;
   }
   progs = malloc(sizeof(op*) * j);
   ptrs = malset(sizeof(int) * j);
   accs = malset(sizeof(int) * j);
+  printf("%d\n", j);
 
   for(i = 0; i < j; i++)
   {
@@ -116,7 +120,7 @@ int main(int argc, char *argv[])
     memcpy(progs[i], prog, sizeof(op) * count);
 
     for(k = 0; k < count; k++)
-      if(progs[i][k].code != ACC && l++ == i)
+      if(progs[i][k].code != ACC && progs[i][k].val != 1 && l++ == i)
       {
         progs[i][k].code = 1 - progs[i][k].code;
         k = count;
