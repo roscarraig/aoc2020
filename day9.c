@@ -4,7 +4,7 @@
 
 void findmatch(int *numbers, int pos, int precount)
 {
-  int i, j;
+  int i, j, sum;
 
   for(i = pos - precount; i < pos; i++)
     if(numbers[i] < numbers[pos])
@@ -12,28 +12,29 @@ void findmatch(int *numbers, int pos, int precount)
         if(numbers[i] + numbers[j] == numbers[pos])
           return;
   printf("%d\n", numbers[pos]);
-  for(i = 0; i < pos - 1; i ++)
+  i = 0;
+  sum = numbers[i];
+  j = 0;
+  while(j < pos)
   {
-    int sum = numbers[i], low = sum, high = sum;
-    if(sum < numbers[pos])
-      for(j = i + 1; j < pos; j++)
+    while(sum < numbers[pos] && j < pos - 1)
+      sum += numbers[++j];
+    if(sum == numbers[pos])
+    {
+      int low = numbers[i], high = numbers[i];
+
+      while(i++ < j)
       {
-        if(sum > numbers[pos])
-          j = pos;
-        else
-        {
-          if(numbers[j] < low)
-            low = numbers[j];
-          if(numbers[j] > high)
-            high = numbers[j];
-          sum += numbers[j];
-          if(sum == numbers[pos])
-          {
-            printf("%d\n", low + high);
-            exit(0);
-          }
-        }
+        if(numbers[i] < low)
+          low = numbers[i];
+        if(numbers[i] > high)
+          high = numbers[i];
       }
+      printf("%d\n", low + high);
+      exit(0);
+    }
+    while(sum > numbers[pos])
+      sum -= numbers[i++];
   }
 }
 
