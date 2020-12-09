@@ -7,31 +7,33 @@ void findmatch(int *numbers, int pos, int precount)
   int i, j;
 
   for(i = pos - precount; i < pos; i++)
-    for(j = i + 1; j < pos; j++)
-      if(numbers[i] + numbers[j] == numbers[pos])
-        return;
+    if(numbers[i] < numbers[pos])
+      for(j = i + 1; j < pos; j++)
+        if(numbers[i] + numbers[j] == numbers[pos])
+          return;
   printf("%d\n", numbers[pos]);
   for(i = 0; i < pos - 1; i ++)
   {
     int sum = numbers[i], low = sum, high = sum;
-    for(j = i + 1; j < pos; j++)
-    {
-      if(sum > numbers[pos])
-        j = pos;
-      else
+    if(sum < numbers[pos])
+      for(j = i + 1; j < pos; j++)
       {
-        if(numbers[j] < low)
-          low = numbers[j];
-        if(numbers[j] > high)
-          high = numbers[j];
-        sum += numbers[j];
-        if(sum == numbers[pos])
+        if(sum > numbers[pos])
+          j = pos;
+        else
         {
-          printf("%d\n", low + high);
-          exit(0);
+          if(numbers[j] < low)
+            low = numbers[j];
+          if(numbers[j] > high)
+            high = numbers[j];
+          sum += numbers[j];
+          if(sum == numbers[pos])
+          {
+            printf("%d\n", low + high);
+            exit(0);
+          }
         }
       }
-    }
   }
 }
 
