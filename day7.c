@@ -7,6 +7,7 @@ typedef struct bag_s {
   int   count;
   int  *subs;
   int  *subcount;
+  int   held;
 } bag;
 
 int lookup(bag *bags, char *colour, int count)
@@ -34,14 +35,13 @@ int contains(bag *bags, int colour, int entry)
 
 int contained(bag *bags, int colour)
 {
-  int total = 0, i;
-  for(i = 0; i < bags[colour].count; i++)
-  {
-    total += bags[colour].subcount[i] * contained(bags, bags[colour].subs[i]);
-  }
-  return(total + 1);
-}
+  int i;
 
+  if(bags[colour].held == 0)
+    for(i = 0; i < bags[colour].count; i++)
+      bags[colour].held += bags[colour].subcount[i] * contained(bags, bags[colour].subs[i]);
+  return(bags[colour].held + 1);
+}
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
   int  count = 0;
   int  i = 0, target = -1, matchcount = 0;
   bag *bags;
+
+  /* Sanity check on the args */
 
   if(argc == 1)
   {
@@ -61,11 +63,18 @@ int main(int argc, char *argv[])
     printf("Unable to open %s\n", argv[1]);
     exit(2);
   }
+
+  /* Count the lines */
+
   while(!feof(fp) && fgets(buffer, 256, fp))
     count++;
+
   rewind(fp);
   bags = malloc(sizeof(bag) * count);
   memset(bags, 0, sizeof(bag) * count);
+
+  /* Enumerate the bags */
+
   while(!feof(fp) && fgets(buffer, 256, fp))
   {
     char *p = strstr(buffer, " bags contain ");
@@ -76,15 +85,24 @@ int main(int argc, char *argv[])
   }
   rewind(fp);
   i = 0;
+
+  /* Super tedious content mapping */
+
   while(!feof(fp) && fgets(buffer, 256, fp))
   {
     char *p = strstr(buffer, " bags contain "), *q;
     p += 14;
+
     if(strcmp(p, "no other bags.\n"))
     {
+      /* Yes, that means if the string doesn't match */
+
       int j = 1;
       q = p;
-      while(q = index(q, ','))
+
+      /* Count the sub bag classes */
+
+      while((q = index(q, ',')))
       {
         j++;
         q++;
@@ -94,16 +112,28 @@ int main(int argc, char *argv[])
       bags[i].subcount = malloc(j * sizeof(int));
       q = p;
       j = 0;
+
+      /* Read in the sub bag level */
       while(p)
       {
         int bagentry;
+
+        /* Get the count */
+
         sscanf(p, "%d ", &(bags[i].subcount[j]));
-        p = index(p, ' ');
-        p++;
+
+        /* Skip the number */
+
+        p = index(p, ' ') + 1;
+
+        /* Find the bag delimiter and trim that point in the string */
+
         q = strstr(p, " bag");
         *q = 0;
         q++;
+
         bagentry = lookup(bags, p, count);
+
         if(bagentry < 0)
         {
           printf("Could not find colour %s\n", p);
@@ -112,6 +142,7 @@ int main(int argc, char *argv[])
         bags[i].subs[j] = bagentry;
         j++;
         p = index(q, ',');
+
         if(p)
           p+= 2;
       }
@@ -119,10 +150,10 @@ int main(int argc, char *argv[])
     i++;
   }
   target = lookup(bags, "shiny gold", count);
+
   for(i = 0; i < count; i++)
-  {
     matchcount += contains(bags, target, i);
-  }
+
   printf("%d\n", matchcount);
   printf("%d\n", contained(bags, target) - 1);
 }
