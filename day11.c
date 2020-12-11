@@ -5,6 +5,7 @@
 void *malset(size_t n)
 {
   void *result = malloc(n);
+
   memset(result, 0, n);
   return(result);
 }
@@ -12,12 +13,14 @@ void *malset(size_t n)
 int neighbours1(char *seats, int x, int y, int mx, int my)
 {
   int count = 0, i, j;
+
   for(i = x - 1; i < x + 2 && i < mx; i++)
     if(i >= 0)
       for(j = y - 1; j < y + 2 && j < my; j++)
         if(j >= 0 && (i != x || j != y))
           if(seats[i + j * mx] == '#')
             count++;
+
   return(count);
 }
 
@@ -25,13 +28,17 @@ int vectorcount(char *seats, int x, int y, int dx, int dy, int mx, int my)
 {
   x += dx;
   y += dy;
+
   while(x >= 0 && y >= 0 && x < mx && y < my)
   {
     char c = seats[x + y * mx];
+
     if(c == '#')
       return(1);
+
     if(c == 'L')
       return(0);
+
     x += dx;
     y += dy;
   }
@@ -41,10 +48,12 @@ int vectorcount(char *seats, int x, int y, int dx, int dy, int mx, int my)
 int neighbours2(char *seats, int x, int y, int mx, int my)
 {
   int count = 0, i, j;
+
   for(i = -1 ; i < 2; i++)
     for(j = -1; j < 2; j++)
       if(i != 0 || j != 0)
         count += vectorcount(seats, x, y, i, j, mx, my);
+
   return(count);
 }
 
@@ -54,6 +63,7 @@ int generation(char *seats, int mx, int my, int tsize)
   int x, y, changes = 0;
 
   memcpy(copy, seats, tsize);
+
   for(y = 0; y < my; y++)
     for(x = 0; x < mx; x++)
     {
@@ -68,8 +78,10 @@ int generation(char *seats, int mx, int my, int tsize)
         changes++;
       }
     }
+
   if(changes > 0)
     memcpy(seats, copy, tsize);
+
   return(changes);
 }
 
@@ -115,5 +127,5 @@ int main(int argc, char *argv[])
     count++;
     pos++;
   }
-  printf("%d\n", count);
+  printf("%d generations: %d\n", i, count);
 }
