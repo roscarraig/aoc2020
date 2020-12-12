@@ -1,24 +1,12 @@
 #include <stdio.h>
-#include <stdlib.h>
+
+#include "aoc.h"
 
 int main(int argc, char *argv[])
 {
-  FILE *fp;
+  FILE *fp = open_data(argc, argv);
   char buffer[256];
   int  x1 = 0, y1 = 0, x2 = 0, y2 = 0, wx = 10, wy = 1, dir1 = 90, dir2, dist, i, tmp;
-
-  /* Arg checks */
-
-  if(argc < 2)
-  {
-    printf("%s <filename>\n", argv[0]);
-    exit(1);
-  }
-  if(!(fp = fopen(argv[1], "r")))
-  {
-    printf("Unable to open %s\n", argv[1]);
-    exit(2);
-  }
 
   while(!feof(fp) && fgets(buffer, 256, fp))
   {

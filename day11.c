@@ -1,22 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "aoc.h"
-
-int neighbours1(char *seats, int x, int y, int mx, int my)
-{
-  int count = 0, i, j;
-
-  for(i = x - 1; i < x + 2 && i < mx; i++)
-    if(i >= 0)
-      for(j = y - 1; j < y + 2 && j < my; j++)
-        if(j >= 0 && (i != x || j != y))
-          if(seats[i + j * mx] == '#')
-            count++;
-
-  return(count);
-}
 
 int vectorcount(char *seats, int x, int y, int dx, int dy, int mx, int my)
 {
@@ -39,6 +23,24 @@ int vectorcount(char *seats, int x, int y, int dx, int dy, int mx, int my)
   return(0);
 }
 
+int neighbours1(char *seats, int x, int y, int mx, int my)
+{
+  int count = 0, i, j;
+
+  for(i = x - 1; i < x + 2 && i < mx; i++)
+    if(i >= 0)
+      for(j = y - 1; j < y + 2 && j < my; j++)
+        if(j >= 0 && (i != x || j != y))
+          if(seats[i + j * mx] == '#')
+            count++;
+
+  if(count == 0)
+    return(0);
+  if(count >= 4)
+    return(1);
+  return(2);
+}
+
 int neighbours2(char *seats, int x, int y, int mx, int my)
 {
   int count = 0, i, j;
@@ -48,10 +50,16 @@ int neighbours2(char *seats, int x, int y, int mx, int my)
       if(i != 0 || j != 0)
         count += vectorcount(seats, x, y, i, j, mx, my);
 
+  if(count == 0)
+    return(0);
+  if(count >= 5)
+    return(1);
+  return(2);
+
   return(count);
 }
 
-int generation(char *seats, int mx, int my, int tsize)
+int generation(char *seats, int mx, int my, int tsize, int (*neigh)(char *, int, int, int, int))
 {
   char *copy = malloc(tsize);
   int x, y, changes = 0;
@@ -61,9 +69,9 @@ int generation(char *seats, int mx, int my, int tsize)
   for(y = 0; y < my; y++)
     for(x = 0; x < mx; x++)
     {
-      int count = neighbours2(seats, x, y, mx, my);
+      int count = neigh(seats, x, y, mx, my);
 
-      if(seats[x + y * mx] == '#' && count >= 5)
+      if(seats[x + y * mx] == '#' && count == 1)
       {
         copy[x + y * mx] = 'L';
         changes++;
@@ -81,45 +89,45 @@ int generation(char *seats, int mx, int my, int tsize)
 
 int main(int argc, char *argv[])
 {
-  FILE *fp;
-  char buffer[256], *seats, *pos;
-  int  count = 0, seatlen = 0, rowlen, i = 0, changes;
-
-  /* Arg checks */
-
-  if(argc < 2)
-  {
-    printf("%s <filename>\n", argv[0]);
-    exit(1);
-  }
-  if(!(fp = fopen(argv[1], "r")))
-  {
-    printf("Unable to open %s\n", argv[1]);
-    exit(2);
-  }
+  FILE *fp = open_data(argc, argv);
+  char buffer[256], *seats1, *seats2, *pos;
+  int  rowcount = 0, count = 0, seatlen = 0, rowlen, i = 0, changes, j;
 
   /* Count the lines */
 
   while(!feof(fp) && fgets(buffer, 256, fp))
   {
-    count++;
+    rowcount++;
     seatlen += strlen(buffer);
   }
   rowlen = strlen(buffer);
-  seats = malset(seatlen + 1);
+  seats1 = malset(seatlen + 1);
+  seats2 = malset(seatlen + 1);
   rewind(fp);
-  fread(seats, 1, seatlen, fp);
+  fread(seats1, 1, seatlen, fp);
+  memcpy(seats2, seats1, seatlen);
 
-  while((changes = generation(seats, rowlen, count, seatlen)) > 0)
-    i++;
-
-  pos = seats;
-  count = 0;
-
-  while((pos = index(pos, '#')))
+  for(j = 0; j < 2; j++)
   {
-    count++;
-    pos++;
+    if(j == 0)
+    {
+      while((changes = generation(seats1, rowlen, rowcount, seatlen, neighbours1)) > 0)
+        i++;
+      pos = seats1;
+    }
+    else
+    {
+      while((changes = generation(seats2, rowlen, rowcount, seatlen, neighbours2)) > 0)
+        i++;
+      pos = seats2;
+    }
+    count = 0;
+
+    while((pos = index(pos, '#')))
+    {
+      count++;
+      pos++;
+    }
+    printf("Part %d, %d generations: %d\n", j + 1, i, count);
   }
-  printf("%d generations: %d\n", i, count);
 }
