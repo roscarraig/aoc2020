@@ -52,7 +52,7 @@ long process_expression(long *expression, int bound)
        */
       else if(expression[i] == -'(' && expression[i + 1] > 0)
       {
-        int k;
+        int  k;
         long v = expression[i + 1];
 
         for(k = i + 2; k < bound; k++)
@@ -81,6 +81,9 @@ long process_expression(long *expression, int bound)
         oped = 1;
       }
     }
+    /* Nothing happened on this cycle but we still have more than one term,
+     * that implies we have multiple terms multiplied together
+     */
     if(oped == 0 && bound > 1 && expression[0] > 0 && expression[2] > 0 && expression[1] == -'*')
     {
       expression[0] *= expression[2];
@@ -103,12 +106,30 @@ long process_expression(long *expression, int bound)
 
 long process_line(char *line)
 {
-  long  depth = 0, val = 0, tv, *expression = malset(200 * sizeof(long));
+  long  depth = 0, val = 0, tv, *expression;
   char *p = line, op = 0;
-  int   i = 0;
+  int   i = 1;
+
+  /* Count the terms */
 
   while(*p != '\n')
   {
+    if(*p == '(' || *p == ')' || *p == ' ')
+      i++;
+    p++;
+  }
+  /* Assing space for the expression */
+
+  expression = malset(i * sizeof(long));
+  i = 0;
+  p = line;
+
+  /* Parse the expression */
+
+  while(*p != '\n')
+  {
+    /* Numbers */
+
     if (*p >= '0' && *p <= '9')
     {
       tv = *(p++) - '0';
@@ -118,11 +139,17 @@ long process_line(char *line)
 
       expression[i++] = tv;
     }
+    /* Skip the spaces */
+
     else if(*p == ' ')
       p++;
     else
+      /* Dirty trick to store the operators */
+
       expression[i++] = -*(p++);
   }
+  /* Run it, clean up and then return */
+
   val = process_expression(expression, i);
   free(expression);
   return(val);
