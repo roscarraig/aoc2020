@@ -22,9 +22,13 @@ for x in `echo $2 | sed -e 's/,/ /g'`; do
   let pos+=1
 done
 
-while [[ $pos -le 2020 ]]; do
+while [[ $pos -le 30000000 ]]; do
   stow $last $pos
+  if [[ $pos -eq 2020 ]]; then
+    echo -n "Part 1: "
+    egrep ":2020$" $datafile | cut -f1 -d:
+  fi
   let pos+=1
 done
-echo -n "Part 1: "
-egrep ":2020$" $datafile | cut -f1 -d:
+echo -n "Part 2: "
+egrep ":10000$" $datafile | cut -f1 -d:
