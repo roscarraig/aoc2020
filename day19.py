@@ -3,16 +3,17 @@
 import sys
 
 
-def match(rules, queue, already):
+def match(rules, queue, already, seen):
     if rules[queue[0]]['type'] == 3:
         prefix = already + rules[queue[0]]['val']
         if len(queue) > 1:
-            match(rules, queue[1:], prefix)
+            match(rules, queue[1:], prefix, seen + [queue[0]])
         else:
+            print(seen)
             print(prefix)
     else:
         for subrule in rules[queue[0]]['sub']:
-            match(rules, subrule + queue[1:], already)
+            match(rules, subrule + queue[1:], already, seen + [queue[0]])
 
 
 def main():
@@ -35,7 +36,7 @@ def main():
                 for subrule in rule.split(' | '):
                     rules[num]['sub'].append(subrule.split(' '))
 
-    match(rules, ['0'], "")
+    match(rules, ['0'], "", [])
 
 
 if __name__ == '__main__':
