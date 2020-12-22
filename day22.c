@@ -28,13 +28,14 @@ void play(unsigned char deck[][52], unsigned int *count)
 
 int play2(unsigned char *p1, unsigned char *p2, unsigned int c1, unsigned int c2)
 {
-  unsigned int card[2], winner, rounds = 0, i;
+  unsigned int card[2], winner, rounds = 0, i, th = 0;
   unsigned char *history = NULL, buffer[64];
-
-  memset(buffer, 0, 64);
 
   while(c1 > 0 && c2 > 0)
   {
+    int   ts = c1 + c2 + 1;
+    unsigned char *p = history;
+
     /* Compose the fingerprint of the hands */
 
     if(p1[0] < p2[0])
@@ -51,21 +52,28 @@ int play2(unsigned char *p1, unsigned char *p2, unsigned int c1, unsigned int c2
     /* Check to see already seen */
 
     for(i = 0; i < rounds; i++)
-      if(memcmp(buffer, (char *) (history + i * (c1 + c2 + 1)), 1 + c1 + c2) == 0)
+    {
+      if(memcmp(buffer, p, ts) == 0)
       {
         free(history);
         return(0);
       }
+      p += ts;
+    }
     /* Otherwise log it */
 
-    history = realloc(history, (rounds + 1) * (1 + c1 + c2));
-    memcpy(history + rounds * (1 + c1 + c2), buffer, c1 + c2 + 1);
+    if((rounds + 1) * ts > th)
+    {
+      th += 16384;
+      history = realloc(history, th);
+    }
+    memcpy(history + rounds * ts, buffer, ts);
     rounds++;
 
     /* On to play */
 
-    card[0] = pop(p1, c1--);
-    card[1] = pop(p2, c2--);
+    card[0] = pop(p1, --c1);
+    card[1] = pop(p2, --c2);
 
     /* The subgame version */
 
@@ -73,8 +81,8 @@ int play2(unsigned char *p1, unsigned char *p2, unsigned int c1, unsigned int c2
     {
       unsigned char *s1, *s2;
 
-      s1 = malset((card[0] + card[1] + 1));
-      s2 = malset((card[1] + card[0] + 1));
+      s1 = malloc(card[0] + card[1]);
+      s2 = malloc(card[1] + card[0]);
       memcpy(s1, p1, card[0]);
       memcpy(s2, p2, card[1]);
       winner = play2(s1, s2, card[0], card[1]);
