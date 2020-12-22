@@ -1,16 +1,16 @@
 #include <string.h>
 #include "aoc.h"
 
-int pop(unsigned int *deck, unsigned int count)
+int pop(unsigned char *deck, unsigned int count)
 {
   int result = deck[0];
-  memcpy(deck, deck + 1, count * sizeof(int));
+  memcpy(deck, deck + 1, count);
   return(result);
 }
 
 /* Part 1 */
 
-void play(unsigned int deck[][52], unsigned int *count)
+void play(unsigned char deck[][52], unsigned int *count)
 {
   unsigned int card[2], winner;
 
@@ -26,7 +26,7 @@ void play(unsigned int deck[][52], unsigned int *count)
 
 /* Part 2 . . . which is somewhat longer */
 
-int play2(unsigned int *p1, unsigned int *p2, unsigned int c1, unsigned int c2)
+int play2(unsigned char *p1, unsigned char *p2, unsigned int c1, unsigned int c2)
 {
   unsigned int card[2], winner, rounds = 0, i;
   unsigned char *history = NULL, buffer[64];
@@ -37,11 +37,16 @@ int play2(unsigned int *p1, unsigned int *p2, unsigned int c1, unsigned int c2)
   {
     /* Compose the fingerprint of the hands */
 
-    for(i = 0; i < c1; i++)
-      buffer[i] = p1[i];
-    buffer[c1] = 0;
-    for(i = 0; i < c2; i++)
-      buffer[1 + c1 + i] = p2[i];
+    if(p1[0] < p2[0])
+    {
+      memcpy(buffer, p1, c1);
+      buffer[c1] = 0;
+      memcpy(buffer + c1 + 1, p2, c2);
+    } else {
+      memcpy(buffer, p2, c2);
+      buffer[c2] = 0;
+      memcpy(buffer + c2 + 1, p1, c1);
+    }
 
     /* Check to see already seen */
 
@@ -66,12 +71,12 @@ int play2(unsigned int *p1, unsigned int *p2, unsigned int c1, unsigned int c2)
 
     if(card[0] <= c1 && card[1] <= c2)
     {
-      unsigned int *s1, *s2;
+      unsigned char *s1, *s2;
 
-      s1 = malset((card[0] + card[1] + 1) * sizeof(int));
-      s2 = malset((card[1] + card[0] + 1) * sizeof(int));
-      memcpy(s1, p1, card[0] * sizeof(int));
-      memcpy(s2, p2, card[1] * sizeof(int));
+      s1 = malset((card[0] + card[1] + 1));
+      s2 = malset((card[1] + card[0] + 1));
+      memcpy(s1, p1, card[0]);
+      memcpy(s2, p2, card[1]);
       winner = play2(s1, s2, card[0], card[1]);
       free(s1);
       free(s2);
@@ -102,12 +107,12 @@ int main(int argc, char *argv[])
 {
   FILE *fp = open_data(argc, argv);
   char  buffer[512];
-  unsigned int deck[2][52], count[2], count2[2], player = -1, v, card[2], i;
-  unsigned int *deck2[2];
+  unsigned int count[2], count2[2], player = -1, v, card[2], i;
+  unsigned char *deck2[2], deck[2][52];
 
-  memset(deck, 0, 2 * 52 * sizeof(int));
-  deck2[0] = malset(52 * sizeof(int));
-  deck2[1] = malset(52 * sizeof(int));
+  memset(deck, 0, 2 * 52);
+  deck2[0] = malset(52);
+  deck2[1] = malset(52);
 
   /* Read in the data */
 
