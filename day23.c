@@ -94,6 +94,7 @@ void play(char *input, int n, int turns)
 
     printf("Part 2: %d * %d = %lu\n", cups[1].next, cups[cups[1].next].next, v);
   }
+  free(cups);
 }
 
 int main(int argc, char *argv[])
