@@ -7,14 +7,16 @@ import sys
 
 def part2(decks):
     seen = set()
+    c = [len(decks[0]), len(decks[1])]
 
-    while len(decks[0]) > 0 and len(decks[1]) > 0:
-        if(str(decks[0]) + str(decks[1]) in seen):
+    while c[0] > 0 and c[1] > 0:
+        fp = tuple(decks[0]) + tuple([0]) + tuple(decks[1])
+        if(fp in seen):
             return 0
-        seen.add(str(decks[0]) + str(decks[1]))
+        seen.add(fp)
         top = [decks[0].pop(0), decks[1].pop(0)]
 
-        if top[0] <= len(decks[0]) and top[1] <= len(decks[1]):
+        if top[0] < c[0] and top[1] < c[1]:
             winner = part2([decks[0][:top[0]], decks[1][:top[1]]])
         elif top[0] > top[1]:
             winner = 0
@@ -22,7 +24,9 @@ def part2(decks):
             winner = 1
         decks[winner].append(top[winner])
         decks[winner].append(top[1 - winner])
-    if len(decks[0]) > 0:
+        c[winner] += 1
+        c[1 - winner] -= 1
+    if c[0] > 0:
         return 0
     return 1
 

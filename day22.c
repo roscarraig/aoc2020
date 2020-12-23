@@ -38,16 +38,9 @@ int play2(unsigned char *p1, unsigned char *p2, unsigned int c1, unsigned int c2
 
     /* Compose the fingerprint of the hands */
 
-    if(p1[0] < p2[0])
-    {
-      memcpy(buffer, p1, c1);
-      buffer[c1] = 0;
-      memcpy(buffer + c1 + 1, p2, c2);
-    } else {
-      memcpy(buffer, p2, c2);
-      buffer[c2] = 0;
-      memcpy(buffer + c2 + 1, p1, c1);
-    }
+    memcpy(buffer, p1, c1);
+    buffer[c1] = 0;
+    memcpy(buffer + c1 + 1, p2, c2);
 
     /* Check to see already seen */
 
@@ -115,7 +108,7 @@ int main(int argc, char *argv[])
 {
   FILE *fp = open_data(argc, argv);
   char  buffer[512];
-  unsigned int count[2], count2[2], player = -1, v, card[2], i;
+  unsigned int count[2], count2[2], player = -1, v, i;
   unsigned char *deck2[2], deck[2][52];
 
   memset(deck, 0, 2 * 52);
@@ -159,4 +152,6 @@ int main(int argc, char *argv[])
     v += deck2[player][i] * (count2[0] + count2[1] - i);
 
   printf("Part 2: Player %d: %d\n", player + 1, v);
+  free(deck2[0]);
+  free(deck2[1]);
 }
