@@ -3,16 +3,16 @@
 
 typedef struct tile_s
 {
-  int x;
-  int y;
-  int hits;
-  int next;
-  int seen;
+  short int x;
+  short int y;
+  short int hits;
+  char      next;
+  char      seen;
 } tile;
 
 int find_tile(tile *tiles, int x, int y)
 {
-  int i = 0;
+  register short int i = 0;
   
   while(tiles[i].seen > 0)
   {
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     char *p = buffer;
 
     x = 0;
-    y =0;
+    y = 0;
     while(*p > 'a' && *p < 'z')
     {
       if(*p =='e')
@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
       count += tiles[i].hits % 2;
       i++;
     }
-    printf("Day %d: %d\n", j + 1, count);
+    if(j == 99)
+      printf("Part 2: %d\n", count);
   }
 }
