@@ -9,10 +9,13 @@ int passvalid1(char *password)
 
   sscanf(password, "%d-%d %c: ", &low, &high, &match);
   pos = index(password, ':') + 1;
+
   while((pos = index(pos + 1, match)))
     count++;
+
   if(count <= high && count >= low)
     return(1);
+
   return(0);
 }
 
@@ -23,13 +26,16 @@ int passvalid2(char *password)
 
   sscanf(password, "%d-%d %c: ", &first, &second, &match);
   pos = index(password, ':') + 1;
+
   if(pos[first] == match)
     count++;
+
   if(pos[second] == match)
     count++;
 
   if(count == 1)
     return(1);
+
   return(0);
 }
 
@@ -37,8 +43,7 @@ int main(int argc, char **argv)
 {
   FILE *fp;
   char buffer[512];
-  int  l, h, count = 0;
-  char m;
+  int  count1 = 0, count2 = 0;
 
   if(argc == 1)
   {
@@ -51,7 +56,11 @@ int main(int argc, char **argv)
     exit(2);
   }
   while(!feof(fp) && fgets(buffer, 512, fp))
-    count += passvalid2(buffer);
+  {
+    count1 += passvalid1(buffer);
+    count2 += passvalid2(buffer);
+  }
   fclose(fp);
-  printf("Count: %d\n", count);
+  printf("Part 1: %d\n", count1);
+  printf("Part 2: %d\n", count2);
 }
