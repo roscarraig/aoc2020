@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <strings.h>
 
 int main(int argc, char *argv[])
@@ -36,7 +37,8 @@ int main(int argc, char *argv[])
       count[3]++;
     row++;
   }
-  printf("%ld * %ld * %ld * %ld * %ld = %ld\n",
+  printf("Part 1: %ld\n", count[1]);
+  printf("Part 2: %ld * %ld * %ld * %ld * %ld = %ld\n",
       count[0], count[1], count[2], count[3], count[4],
       count[0] * count[1] * count[2] * count[3] * count[4]);
 }
