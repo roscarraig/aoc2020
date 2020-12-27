@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
   FILE *fp;
   char buffer[512];
-  unsigned int count = 0, fields = 0;
+  unsigned int count1 = 0, count2 = 0, fields1 = 0, fields2 = 0;
   const char* const fieldtags[] = {"byr:", "iyr:", "eyr:", "hgt:", "hcl:", "ecl:", "pid:", "cid:"};
   const char* const ecl[] = {"amb ", "blu ", "brn ", "gry ", "grn ", "hzl ", "oth "};
 
@@ -37,10 +37,12 @@ int main(int argc, char *argv[])
           if(strncmp(p, fieldtags[i], 4) == 0)
           {
             p += 4;
+            fields1 |= 1 << i;
 
             if(i >= 0 && i <= 2)
             {
               int year = 0;
+
               sscanf(p, "%d ", &year);
               if(
                   (i == 0 && year >= 1920 && year <= 2002) ||
@@ -48,10 +50,10 @@ int main(int argc, char *argv[])
                   (i == 2 && year >= 2020 && year <= 2030)
                 )
               {
-                fields |= 1 << i;
+                fields2 |= 1 << i;
                 break;
               }
-              fields = 0;
+              fields2 = 0;
               break;
             }
             else if (i == 3)
@@ -65,10 +67,10 @@ int main(int argc, char *argv[])
                   ((strncmp(unit, "in", 2) == 0) && (val >= 59) && (val <= 76))
                  )
               {
-                fields |= 1 << i;
+                fields2 |= 1 << i;
                 break;
               }
-              fields = 0;
+              fields2 = 0;
               break;
             }
             else if (i == 4)
@@ -78,13 +80,13 @@ int main(int argc, char *argv[])
 
               if (*p != '#')
               {
-                fields = 0;
+                fields2 = 0;
                 break;
               }
               for(j = 1; j < 7; j++)
                 if((p[j] < '0') || (p[j] > 'f') || ((p[j] > '9') && (p[j] < 'a')))
                 {
-                  fields = 0;
+                  fields2 = 0;
                   b = 1;
                   break;
                 }
@@ -92,10 +94,10 @@ int main(int argc, char *argv[])
                 break;
               if(p[7] != ' ')
               {
-                fields = 0;
+                fields2 = 0;
                 break;
               }
-              fields |= 1 << i;
+              fields2 |= 1 << i;
               break;
             }
             else if (i == 5)
@@ -105,7 +107,7 @@ int main(int argc, char *argv[])
               {
                 if(strncmp(p, ecl[j], 4) == 0)
                 {
-                  fields |= 1 << i;
+                  fields2 |= 1 << i;
                   break;
                 }
               }
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
               for(j = 0; j < 9; j++)
                 if((p[j] < '0') || (p[j] > '9'))
                 {
-                  fields = 0;
+                  fields2 = 0;
                   b = 1;
                   break;
                 }
@@ -126,13 +128,13 @@ int main(int argc, char *argv[])
                 break;
               if(p[9] != ' ')
               {
-                fields = 0;
+                fields2 = 0;
                 break;
               }
-              fields |= 1 << i;
+              fields2 |= 1 << i;
               break;
             }
-            fields |= 1 << i;
+            fields2 |= 1 << i;
             break;
           }
         p = index(p, ' ') + 1;
@@ -140,12 +142,18 @@ int main(int argc, char *argv[])
     }
     else
     {
-      if(fields == (1 << 7) - 1 || fields == (1 << 8) - 1)
-        count++;
-      fields = 0;
+      if(fields1 == (1 << 7) - 1 || fields1 == (1 << 8) - 1)
+        count1++;
+      if(fields2 == (1 << 7) - 1 || fields2 == (1 << 8) - 1)
+        count2++;
+      fields1 = 0;
+      fields2 = 0;
     }
   }
-  if(fields == (1 << 7) - 1 || fields == (1 << 8) - 1)
-    count++;
-  printf("%d\n", count);
+  if(fields1 == (1 << 7) - 1 || fields1 == (1 << 8) - 1)
+    count1++;
+  if(fields2 == (1 << 7) - 1 || fields2 == (1 << 8) - 1)
+    count2++;
+  printf("Part 1: %d\n", count1);
+  printf("Part 2: %d\n", count2);
 }
