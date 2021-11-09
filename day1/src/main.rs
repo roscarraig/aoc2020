@@ -17,23 +17,44 @@ fn main() {
         }
     }
     numbers.sort();
-    println!("Numbers: {:?}", numbers);
     find_match(numbers, 2020);
 }
 
 fn find_match(v: Vec<i32>, t: i32) -> ()
 {
-    println!("{}", v.len());
     let l = v.len();
-    for i in 0..(l - 1)
+    for i in 0..(l - 2)
     {
-        for j in 1..(l - i)
+        for j in (i + 1)..(l - 1)
         {
-            if v[i] + v[l - j] == t
+            let u = v[i] + v[j];
+            if u == t
             {
                 println!("x {}", v[i]);
-                println!("y {}", v[l - j]);
-                println!("{}", v[i] * v[l - j]);
+                println!("y {}", v[j]);
+                println!("Part 1 {}", v[i] * v[j]);
+            }
+            else if u < t
+            {
+                for k in (j + 1)..(l - 1)
+                {
+                    let w = u + v[k];
+                    if w == t
+                    {
+                        println!("x {}", v[i]);
+                        println!("y {}", v[j]);
+                        println!("z {}", v[k]);
+                        println!("Part 2 {}", v[i] * v[j] * v[k]);
+                    }
+                    else if w > t
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                break;
             }
         }
     }
